@@ -1,6 +1,5 @@
 import React from "react"
 import { Transactions } from "./features/transactions/Transactions"
-import "./App.css"
 
 function App() {
   return (

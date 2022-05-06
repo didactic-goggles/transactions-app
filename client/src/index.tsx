@@ -5,12 +5,12 @@ import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
-import { fetchAsync } from './features/transactions/transactionsSlice';
+import { fetchTransactions } from './features/transactions/transactionsSlice';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
-store.dispatch(fetchAsync());
+store.dispatch(fetchTransactions());
 
 root.render(
   <React.StrictMode>

@@ -15,3 +15,19 @@ export const getTransactions = async (): Promise<
     throw new Error(error as string)
   }
 }
+
+export const createTransaction = async (formData: ITransactionFormData): Promise<
+  AxiosResponse<ApiDataType>
+> => {
+  try {
+    const transactions: AxiosResponse<ApiDataType> = await axios.post(
+      baseUrl + "/transactions"
+    , formData)
+    console.log(transactions)
+    return transactions
+  } catch (error) {
+    if (error instanceof Error)
+      throw new Error(error.message)
+    throw new Error(error as string)
+  }
+}

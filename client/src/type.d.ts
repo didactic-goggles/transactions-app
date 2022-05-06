@@ -1,7 +1,13 @@
+interface ITransactionFormData {
+  description: string
+  type: "income" | "expense"
+  amount: number
+}
+
 interface ITransaction {
   id: string
   description: string
-  type: "income" | "excome"
+  type: "income" | "expense"
   amount: number
   t_date: Date
 }
