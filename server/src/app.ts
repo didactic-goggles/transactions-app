@@ -1,16 +1,16 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { json } from 'body-parser';
+import express, { Request, Response, NextFunction } from "express"
+import { json } from "body-parser"
+import cors from "cors"
+import transactionRoutes from "./routes/transactions"
 
-import transactionRoutes from './routes/transactions';
+const app = express()
 
-const app = express();
-
-app.use(json());
-
-app.use('/transactions', transactionRoutes);
+app.use(json())
+app.use(cors())
+app.use("/transactions", transactionRoutes)
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({ message: err.message });
-});
+  res.status(500).json({ message: err.message })
+})
 
-app.listen(3000);
+app.listen(3000, () => console.log(`Server running on http://localhost:3000`))

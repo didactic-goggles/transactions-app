@@ -1,38 +1,40 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTransaction = exports.updateTransaction = exports.getTransactions = exports.createTransaction = void 0;
-// import lowdb from "lowdb"
 const lowdb = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
-// import { dirname, join } from 'path';
-// import { fileURLToPath } from 'url';
-// import db from '../db';
 const transaction_1 = require("../models/transaction");
-// const adapter = new FileSync<Data>('db.json')
-// const db = lowdb(adapter)
-// Use JSON file for storage
-const adapter = new FileSync('data/db.json');
+const adapter = new FileSync("data/db.json");
 const db = lowdb(adapter);
-// db.defaults({
-//   transactions: [],
-// }).write();
+db.defaults({
+    transactions: [],
+}).write();
 const TRANSACTIONS = [];
+const errorHandler = (error, res) => {
+    if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 const createTransaction = async (req, res, next) => {
-    const transactionObj = {
-        ...req.body,
-        id: new Date().valueOf().toString()
-    };
-    const newTransaction = new transaction_1.Transaction(transactionObj);
-    db.get('transactions').push(newTransaction).write();
-    console.log(db.get('transactions'));
-    res.status(201).json({
-        message: 'Created the transaction.',
-        createdTransaction: newTransaction,
-    });
+    try {
+        const transactionObj = {
+            ...req.body,
+            id: new Date().valueOf().toString(),
+        };
+        const newTransaction = new transaction_1.Transaction(transactionObj);
+        db.get("transactions").push(newTransaction).write();
+        res.status(201).json({
+            message: "Created the transaction.",
+            createdTransaction: newTransaction,
+        });
+    }
+    catch (error) {
+        errorHandler(error, res);
+    }
 };
 exports.createTransaction = createTransaction;
 const getTransactions = async (req, res, next) => {
-    res.json({ transactions: db.get('transactions') });
+    res.status(200).json({ transactions: db.get("transactions") });
 };
 exports.getTransactions = getTransactions;
 const updateTransaction = (req, res, next) => {
@@ -40,14 +42,14 @@ const updateTransaction = (req, res, next) => {
     const updatedText = req.body.text;
     const transactionIndex = TRANSACTIONS.findIndex((transaction) => transaction.id === transactionId);
     if (transactionIndex < 0) {
-        throw new Error('Could not find transaction!');
+        throw new Error("Could not find transaction!");
     }
     TRANSACTIONS[transactionIndex] = new transaction_1.Transaction({
         id: transactionId,
         description: updatedText,
     });
     res.json({
-        message: 'Updated!!',
+        message: "Updated!!",
         updatedTransaction: TRANSACTIONS[transactionIndex],
     });
 };
@@ -56,9 +58,9 @@ const deleteTransaction = (req, res, next) => {
     const transactionId = req.params.id;
     const transactionIndex = TRANSACTIONS.findIndex((transaction) => transaction.id === transactionId);
     if (transactionIndex < 0) {
-        throw new Error('Could not find transaction!');
+        throw new Error("Could not find transaction!");
     }
     TRANSACTIONS.splice(transactionIndex, 1);
-    res.json({ message: 'Transaction deleted!' });
+    res.json({ message: "Transaction deleted!" });
 };
 exports.deleteTransaction = deleteTransaction;
