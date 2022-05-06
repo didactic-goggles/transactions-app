@@ -32,7 +32,7 @@ export const createTransaction: RequestHandler = async (req, res, next) => {
     db.get("transactions").push(newTransaction).write()
     res.status(201).json({
       message: "Created the transaction.",
-      createdTransaction: newTransaction,
+      transaction: newTransaction,
     })
   } catch (error) {
     errorHandler(error, res)

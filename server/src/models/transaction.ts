@@ -1,7 +1,7 @@
 export interface ITransaction {
   id: string
   description: string
-  type: 'income' | 'excome'
+  type: 'income' | 'expense'
   amount: number
   t_date: Date
 }
@@ -9,14 +9,14 @@ export interface ITransaction {
 export class Transaction {
   id: string
   description: string
-  type: 'income' | 'excome'
+  type: 'income' | 'expense'
   amount: number
   t_date: Date
   constructor(data: ITransaction) {
     if (typeof data.amount !== 'number') {
       throw new Error('Invalid amount')
     }
-    if (data.type !== 'excome' && data.type !== 'income') {
+    if (data.type !== 'expense' && data.type !== 'income') {
       throw new Error('Invalid type')
     }
     this.id = data.id

@@ -6,7 +6,7 @@ class Transaction {
         if (typeof data.amount !== 'number') {
             throw new Error('Invalid amount');
         }
-        if (data.type !== 'excome' && data.type !== 'income') {
+        if (data.type !== 'expense' && data.type !== 'income') {
             throw new Error('Invalid type');
         }
         this.id = data.id;
