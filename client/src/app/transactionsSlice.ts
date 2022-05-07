@@ -1,16 +1,21 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState, AppThunk } from '../../app/store';
-import { getTransactions, createTransaction } from '../../API'
-// import { fetchCount } from './counterAPI';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { RootState } from './store'
+import { getTransactions, createTransaction } from 'API'
 
 export interface TransactionsState {
   transactions: ITransaction[];
   status: 'idle' | 'loading' | 'failed';
+  errors: {
+    fetchError: {}
+  }
 }
 
 const initialState: TransactionsState = {
   transactions: [],
   status: 'idle',
+  errors: {
+    fetchError: {}
+  }
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -67,8 +72,10 @@ export const transactionsSlice = createSlice({
         state.status = 'idle';
         state.transactions = action.payload.transactions;
       })
-      .addCase(fetchTransactions.rejected, (state) => {
+      .addCase(fetchTransactions.rejected, (state, action) => {
         state.status = 'failed';
+        console.log(action)
+        state.errors.fetchError = action.error as Error;
       })
       .addCase(addTransaction.fulfilled, (state, action) => {
         state.transactions.push(action.payload.transaction as ITransaction)
@@ -82,7 +89,8 @@ export const transactionsSlice = createSlice({
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectTransactions = (state: RootState) => state.transactions.transactions;
-
+export const selectStatus = (state: RootState) => state.transactions.status;
+export const selectErrors = (state: RootState) => state.transactions.errors
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 // export const incrementIfOdd =
