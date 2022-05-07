@@ -6,14 +6,10 @@ class Transaction {
         if (typeof data.amount !== 'number') {
             throw new Error('Invalid amount');
         }
-        if (data.type !== 'expense' && data.type !== 'income') {
-            throw new Error('Invalid type');
-        }
         this.id = data.id;
         this.description = data.description;
-        this.type = data.type;
         this.amount = data.amount;
-        this.t_date = data.t_date;
+        this.date = data.date;
     }
 }
 exports.Transaction = Transaction;

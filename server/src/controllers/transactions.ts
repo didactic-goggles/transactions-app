@@ -40,7 +40,8 @@ export const createTransaction: RequestHandler = async (req, res, next) => {
 }
 
 export const getTransactions: RequestHandler = async (req, res, next) => {
-  res.status(200).json({ transactions: db.get("transactions") })
+  setTimeout(() => res.status(200).json({ transactions: db.get("transactions") }), 3000)
+  // res.status(200).json({ transactions: db.get("transactions") })
 }
 
 export const updateTransaction: RequestHandler<{ id: string }> = (
@@ -74,15 +75,8 @@ export const updateTransaction: RequestHandler<{ id: string }> = (
 export const deleteTransaction: RequestHandler = (req, res, next) => {
   const transactionId = req.params.id
 
-  const transactionIndex = TRANSACTIONS.findIndex(
-    (transaction) => transaction.id === transactionId
-  )
-
-  if (transactionIndex < 0) {
-    throw new Error("Could not find transaction!")
-  }
-
-  TRANSACTIONS.splice(transactionIndex, 1)
+  db.get("transactions").remove({ id: transactionId })
+  .write()
 
   res.json({ message: "Transaction deleted!" })
 }
