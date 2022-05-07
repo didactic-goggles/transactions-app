@@ -12,9 +12,7 @@ const db = lowdb(adapter)
 
 db.defaults({
   transactions: [],
-}).write();
-
-const TRANSACTIONS: Transaction[] = []
+}).write()
 
 const errorHandler = (error: unknown, res: Response) => {
   if (error instanceof Error) {
@@ -31,7 +29,7 @@ export const createTransaction: RequestHandler = async (req, res, next) => {
     const newTransaction = new Transaction(transactionObj as ITransaction)
     db.get("transactions").push(newTransaction).write()
     res.status(201).json({
-      message: "Created the transaction.",
+      message: "Transaction created",
       transaction: newTransaction,
     })
   } catch (error) {
@@ -40,7 +38,10 @@ export const createTransaction: RequestHandler = async (req, res, next) => {
 }
 
 export const getTransactions: RequestHandler = async (req, res, next) => {
-  setTimeout(() => res.status(200).json({ transactions: db.get("transactions") }), 3000)
+  setTimeout(
+    () => res.status(200).json({ transactions: db.get("transactions") }),
+    3000
+  )
   // res.status(200).json({ transactions: db.get("transactions") })
 }
 
@@ -49,34 +50,37 @@ export const updateTransaction: RequestHandler<{ id: string }> = (
   res,
   next
 ) => {
-  const transactionId = req.params.id
+  try {
+    const transactionId = req.params.id
 
-  const updatedText = (req.body as { text: string }).text
+    const updatedTransaction = req.body as ITransaction
 
-  const transactionIndex = TRANSACTIONS.findIndex(
-    (transaction) => transaction.id === transactionId
-  )
+    if (!db.get("transactions").find({ id: transactionId }).value()) {
+      throw new Error("Invalid transaction")
+    }
 
-  if (transactionIndex < 0) {
-    throw new Error("Could not find transaction!")
+    db.get("transactions")
+      .find({ id: transactionId })
+      .assign({
+        description: updatedTransaction.description,
+        amount: updatedTransaction.amount,
+        date: updatedTransaction.date,
+      })
+      .value()
+
+    res.json({
+      message: "Transaction updated",
+      transaction: db.get("transactions").find({ id: transactionId }),
+    })
+  } catch (error) {
+    errorHandler(error, res)
   }
-
-  TRANSACTIONS[transactionIndex] = new Transaction({
-    id: transactionId,
-    description: updatedText,
-  } as ITransaction)
-
-  res.json({
-    message: "Updated!!",
-    updatedTransaction: TRANSACTIONS[transactionIndex],
-  })
 }
 
 export const deleteTransaction: RequestHandler = (req, res, next) => {
   const transactionId = req.params.id
 
-  db.get("transactions").remove({ id: transactionId })
-  .write()
+  db.get("transactions").remove({ id: transactionId }).write()
 
-  res.json({ message: "Transaction deleted!" })
+  res.json({ message: "Transaction deleted" })
 }

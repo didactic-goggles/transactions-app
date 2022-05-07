@@ -9,7 +9,6 @@ const db = lowdb(adapter);
 db.defaults({
     transactions: [],
 }).write();
-const TRANSACTIONS = [];
 const errorHandler = (error, res) => {
     if (error instanceof Error) {
         res.status(500).json({ message: error.message });
@@ -24,7 +23,7 @@ const createTransaction = async (req, res, next) => {
         const newTransaction = new transaction_1.Transaction(transactionObj);
         db.get("transactions").push(newTransaction).write();
         res.status(201).json({
-            message: "Created the transaction.",
+            message: "Transaction created",
             transaction: newTransaction,
         });
     }
@@ -39,26 +38,33 @@ const getTransactions = async (req, res, next) => {
 };
 exports.getTransactions = getTransactions;
 const updateTransaction = (req, res, next) => {
-    const transactionId = req.params.id;
-    const updatedText = req.body.text;
-    const transactionIndex = TRANSACTIONS.findIndex((transaction) => transaction.id === transactionId);
-    if (transactionIndex < 0) {
-        throw new Error("Could not find transaction!");
+    try {
+        const transactionId = req.params.id;
+        const updatedTransaction = req.body;
+        if (!db.get("transactions").find({ id: transactionId }).value()) {
+            throw new Error("Invalid transaction");
+        }
+        db.get("transactions")
+            .find({ id: transactionId })
+            .assign({
+            description: updatedTransaction.description,
+            amount: updatedTransaction.amount,
+            date: updatedTransaction.date,
+        })
+            .value();
+        res.json({
+            message: "Transaction updated",
+            transaction: db.get("transactions").find({ id: transactionId }),
+        });
     }
-    TRANSACTIONS[transactionIndex] = new transaction_1.Transaction({
-        id: transactionId,
-        description: updatedText,
-    });
-    res.json({
-        message: "Updated!!",
-        updatedTransaction: TRANSACTIONS[transactionIndex],
-    });
+    catch (error) {
+        errorHandler(error, res);
+    }
 };
 exports.updateTransaction = updateTransaction;
 const deleteTransaction = (req, res, next) => {
     const transactionId = req.params.id;
-    db.get("transactions").remove({ id: transactionId })
-        .write();
-    res.json({ message: "Transaction deleted!" });
+    db.get("transactions").remove({ id: transactionId }).write();
+    res.json({ message: "Transaction deleted" });
 };
 exports.deleteTransaction = deleteTransaction;
