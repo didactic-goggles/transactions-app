@@ -1,10 +1,10 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { RootState } from './store'
-import { getTransactions, createTransaction } from 'API'
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { RootState } from "./store"
+import { getTransactions, createTransaction, deleteTransaction } from "API"
 
 export interface TransactionsState {
-  transactions: ITransaction[];
-  status: 'idle' | 'loading' | 'failed';
+  transactions: ITransaction[]
+  status: "idle" | "loading" | "failed"
   errors: {
     fetchError: {}
   }
@@ -12,11 +12,11 @@ export interface TransactionsState {
 
 const initialState: TransactionsState = {
   transactions: [],
-  status: 'idle',
+  status: "idle",
   errors: {
-    fetchError: {}
-  }
-};
+    fetchError: {},
+  },
+}
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
@@ -24,25 +24,32 @@ const initialState: TransactionsState = {
 // code can then be executed and other actions can be dispatched. Thunks are
 // typically used to make async requests.
 export const fetchTransactions = createAsyncThunk(
-  'transactions/fetchTransactions',
+  "transactions/fetchTransactions",
   async () => {
-    const response = await getTransactions();
+    const response = await getTransactions()
     // The value we return becomes the `fulfilled` action payload
-    return response.data;
+    return response.data
   }
-);
+)
 
 export const addTransaction = createAsyncThunk(
-  'transactions/addTransaction',
+  "transactions/addTransaction",
   async (formData: ITransactionFormData) => {
-    const response = await createTransaction(formData);
-    // The value we return becomes the `fulfilled` action payload
-    return response.data;
+    const response = await createTransaction(formData)
+    return response.data
   }
-);
+)
+
+export const removeTransaction = createAsyncThunk(
+  "transactions/removeTransaction",
+  async (transactionId: string) => {
+    await deleteTransaction(transactionId)
+    return transactionId
+  }
+)
 
 export const transactionsSlice = createSlice({
-  name: 'transactions',
+  name: "transactions",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
@@ -66,30 +73,35 @@ export const transactionsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchTransactions.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading"
       })
       .addCase(fetchTransactions.fulfilled, (state, action) => {
-        state.status = 'idle';
-        state.transactions = action.payload.transactions;
+        state.status = "idle"
+        state.transactions = action.payload.transactions as ITransaction[]
       })
       .addCase(fetchTransactions.rejected, (state, action) => {
-        state.status = 'failed';
-        console.log(action)
-        state.errors.fetchError = action.error as Error;
+        state.status = "failed"
+        state.errors.fetchError = action.error as Error
       })
       .addCase(addTransaction.fulfilled, (state, action) => {
         state.transactions.push(action.payload.transaction as ITransaction)
       })
+      .addCase(removeTransaction.fulfilled, (state, action) => {
+        const transactionIndex = state.transactions.findIndex(
+          (t) => t.id === action.payload
+        )
+        if (transactionIndex !== -1)
+          state.transactions.splice(transactionIndex, 1)
+      })
   },
-});
-
-
+})
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectTransactions = (state: RootState) => state.transactions.transactions;
-export const selectStatus = (state: RootState) => state.transactions.status;
+export const selectTransactions = (state: RootState) =>
+  state.transactions.transactions
+export const selectStatus = (state: RootState) => state.transactions.status
 export const selectErrors = (state: RootState) => state.transactions.errors
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
@@ -102,4 +114,4 @@ export const selectErrors = (state: RootState) => state.transactions.errors
 //     }
 //   };
 
-export default transactionsSlice.reducer;
+export default transactionsSlice.reducer

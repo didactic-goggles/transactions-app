@@ -9,6 +9,8 @@ import {
 import styles from "./Transactions.module.css"
 import ErrorMessage from "features/ErrorMessage"
 import LoadingSpinner from "features/LoadingSpinner"
+import NoTransactions from "features/NoTransactions"
+import TransactionItem from "./TransactionItem"
 
 const Transactions: React.FC = () => {
   const transactions = useAppSelector(selectTransactions)
@@ -16,23 +18,14 @@ const Transactions: React.FC = () => {
   const fetchError = useAppSelector(selectErrors).fetchError
   if (status === "failed") return <ErrorMessage error={fetchError as Error} />
   if (status === "loading") return <LoadingSpinner />
+  if (status === "idle" && transactions.length === 0) return <NoTransactions />
   return (
-    <div style={{ textAlign: "center" }}>
-      <div className={styles.row}>
-        <ul>
-          {transactions.map((transaction) => (
-            <li
-              key={transaction.id}
-              style={{ border: "1px solid #eee", padding: "1rem" }}
-            >
-              <div>Id: {transaction.id}</div>
-              <div>Desc: {transaction.description}</div>
-              <div>Amount: {transaction.amount}</div>
-              <div>Type: {transaction.type}</div>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div>
+      <ul className="list-group">
+        {transactions.map((transaction) => (
+          <TransactionItem transaction={transaction} key={transaction.id} />
+        ))}
+      </ul>
     </div>
   )
 }

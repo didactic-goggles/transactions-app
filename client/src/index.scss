@@ -1,1 +1,12 @@
-@import '~bootstrap/scss/bootstrap'
+@import '~bootstrap/scss/bootstrap';
+@import '~bootstrap-icons/font/bootstrap-icons.scss';
+
+.min-h-100 {
+    min-height: 100vh !important;
+}
+
+.text-hover-danger {
+    &:hover {
+        color: var(--bs-danger)
+    }
+}

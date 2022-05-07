@@ -1,15 +1,14 @@
 interface ITransactionFormData {
   description: string
-  type: "income" | "expense"
   amount: number
+  date: Date
 }
 
 interface ITransaction {
   id: string
   description: string
-  type: "income" | "expense"
   amount: number
-  t_date: Date
+  date: Date
 }
 
 interface TransactionProps {
@@ -17,8 +16,8 @@ interface TransactionProps {
 }
 
 type ApiDataType = {
-  message: string
   status: string
-  transactions: ITransaction[]
+  transactions?: ITransaction[]
+  message?: string
   transaction?: ITransaction
 }

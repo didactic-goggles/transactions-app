@@ -6,8 +6,8 @@ import { addTransaction } from "app/transactionsSlice"
 const TransactionForm: React.FC = () => {
   const [formData, setFormData] = useState<ITransactionFormData>({
     description: "",
-    type: "income",
     amount: 0,
+    date: new Date()
   })
 
   const dispatch = useAppDispatch()
@@ -47,20 +47,13 @@ const TransactionForm: React.FC = () => {
           />
         </div>
         <div>
-          <label htmlFor="type">Type</label>
-          <select
-            name=""
-            id="type"
-            onChange={(e: FormEvent<HTMLSelectElement>) =>
+          <label htmlFor="date">Type</label>
+          <input type="date" name="" id="date" onChange={(e: FormEvent<HTMLInputElement>) =>
               setFormData({
                 ...formData,
-                type: e.currentTarget.value as "income" | "expense",
+                date: new Date(e.currentTarget.value),
               })
-            }
-          >
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
+            }/>
         </div>
         <button type="submit">Save</button>
       </form>
