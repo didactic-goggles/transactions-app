@@ -1,0 +1,7 @@
+input.form-control {
+    +.dropdown-menu {
+        // top: 2.5rem !important;
+        inset: 2.5rem auto auto 0px !important;
+        transform: translate3d(0px, 2px, 0px) !important;
+    }
+}

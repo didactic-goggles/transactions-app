@@ -1,12 +1,14 @@
 import axios, { AxiosResponse } from "axios"
 const baseUrl: string = "http://localhost:3000"
 
-export const getTransactions = async (): Promise<
+export const getTransactions = async (query: {}): Promise<
   AxiosResponse<ApiDataType>
 > => {
   try {
     const transactions: AxiosResponse<ApiDataType> = await axios.get(
-      baseUrl + "/transactions"
+      baseUrl + "/transactions", {
+        params: query
+      }
     )
     return transactions
   } catch (error) {

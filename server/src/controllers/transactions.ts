@@ -38,11 +38,11 @@ export const createTransaction: RequestHandler = async (req, res, next) => {
 }
 
 export const getTransactions: RequestHandler = async (req, res, next) => {
-  setTimeout(
-    () => res.status(200).json({ transactions: db.get("transactions") }),
-    3000
-  )
-  // res.status(200).json({ transactions: db.get("transactions") })
+  // setTimeout(
+  //   () => res.status(200).json({ transactions: db.get("transactions") }),
+  //   3000
+  // )
+  res.status(200).json({ transactions: db.get("transactions") })
 }
 
 export const updateTransaction: RequestHandler<{ id: string }> = (

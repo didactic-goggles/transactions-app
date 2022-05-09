@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { RootState } from "./store"
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { AppThunk, RootState } from "./store"
 import { getTransactions, createTransaction, deleteTransaction } from "API"
 
 export interface TransactionsState {
@@ -8,6 +8,11 @@ export interface TransactionsState {
   errors: {
     fetchError: {}
   }
+  query: {
+    limit: number
+    search: string
+    filter: IFilter
+  }
 }
 
 const initialState: TransactionsState = {
@@ -15,6 +20,14 @@ const initialState: TransactionsState = {
   status: "idle",
   errors: {
     fetchError: {},
+  },
+  query: {
+    limit: 10,
+    search: "",
+    filter: {
+      amount: null,
+      date: null,
+    },
   },
 }
 
@@ -26,7 +39,7 @@ const initialState: TransactionsState = {
 export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
   async () => {
-    const response = await getTransactions()
+    const response = await getTransactions(initialState.query)
     // The value we return becomes the `fulfilled` action payload
     return response.data
   }
@@ -53,6 +66,13 @@ export const transactionsSlice = createSlice({
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
+    search: (state, action: PayloadAction<string>) => {
+      state.query.search = action.payload
+      console.log(action.payload, state.query.search)
+    },
+    filter: (state, action: PayloadAction<IFilter>) => {
+      state.query.filter = action.payload
+    },
     // increment: (state) => {
     //   // Redux Toolkit allows us to write "mutating" logic in reducers. It
     //   // doesn't actually mutate the state because it uses the Immer library,
@@ -99,10 +119,12 @@ export const transactionsSlice = createSlice({
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
+export const { search, filter } = transactionsSlice.actions
 export const selectTransactions = (state: RootState) =>
   state.transactions.transactions
 export const selectStatus = (state: RootState) => state.transactions.status
 export const selectErrors = (state: RootState) => state.transactions.errors
+export const selectQuery = (state: RootState) => state.transactions.query
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 // export const incrementIfOdd =

@@ -6,11 +6,13 @@ import {
   selectStatus,
   selectTransactions,
 } from "app/transactionsSlice"
-import styles from "./Transactions.module.css"
+// import styles from "./Transactions.module.css"
 import ErrorMessage from "features/ErrorMessage"
 import LoadingSpinner from "features/LoadingSpinner"
 import NoTransactions from "features/NoTransactions"
 import TransactionItem from "./TransactionItem"
+import TransactionFilter from "./filter/index"
+import TransactionPagination from "./TransactionsPagination"
 
 const Transactions: React.FC = () => {
   const transactions = useAppSelector(selectTransactions)
@@ -20,13 +22,15 @@ const Transactions: React.FC = () => {
   if (status === "loading") return <LoadingSpinner />
   if (status === "idle" && transactions.length === 0) return <NoTransactions />
   return (
-    <div>
+    <section>
+      <TransactionFilter />
       <ul className="list-group">
         {transactions.map((transaction) => (
           <TransactionItem transaction={transaction} key={transaction.id} />
         ))}
       </ul>
-    </div>
+      <TransactionPagination />
+    </section>
   )
 }
 

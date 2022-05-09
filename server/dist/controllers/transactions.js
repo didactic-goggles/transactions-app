@@ -33,8 +33,11 @@ const createTransaction = async (req, res, next) => {
 };
 exports.createTransaction = createTransaction;
 const getTransactions = async (req, res, next) => {
-    setTimeout(() => res.status(200).json({ transactions: db.get("transactions") }), 3000);
-    // res.status(200).json({ transactions: db.get("transactions") })
+    // setTimeout(
+    //   () => res.status(200).json({ transactions: db.get("transactions") }),
+    //   3000
+    // )
+    res.status(200).json({ transactions: db.get("transactions") });
 };
 exports.getTransactions = getTransactions;
 const updateTransaction = (req, res, next) => {

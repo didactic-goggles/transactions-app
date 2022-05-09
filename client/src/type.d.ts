@@ -21,3 +21,14 @@ type ApiDataType = {
   message?: string
   transaction?: ITransaction
 }
+
+interface IFilter {
+  amount: {
+    min: number
+    max: number
+  } | null
+  date: {
+    startDate: number
+    endDate: number
+  } | null
+}
