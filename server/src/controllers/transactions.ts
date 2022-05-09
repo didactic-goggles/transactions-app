@@ -66,26 +66,29 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
   const query: ReqQuery = req.query
   if (query && Object.keys(query).length > 0) {
     results = transactions.filter((transaction) => {
+      let filteredStatus = true
       if (query.search && query.search !== "") {
-        return transaction.description
+        filteredStatus = transaction.description
           .toLowerCase()
           .includes(query.search.toLowerCase())
       }
-      if (query.filter) {
+      if (query.filter && filteredStatus) {
         const filterObj: ReqQueryFilter = JSON.parse(query.filter)
         if (filterObj.amount) {
           const { min, max } = filterObj.amount
-          if (min && max && min < max)
-            return transaction.amount <= max && transaction.amount >= min
+          console.log(Boolean(min !== undefined && max !== undefined && min < max))
+          if (min !== undefined && max !== undefined && min < max)
+            filteredStatus =
+              transaction.amount <= max && transaction.amount >= min
         }
-        if (filterObj.amount) {
+        if (filterObj.date && filteredStatus) {
           const { endDate, startDate } = filterObj.date
-          return (
+          filteredStatus =
             new Date(transaction.date).valueOf() <= endDate &&
             new Date(transaction.date).valueOf() >= startDate
-          )
         }
       }
+      return filteredStatus
     })
     total = results.length
     if (query.limit && query.page) {

@@ -18,17 +18,24 @@ const Transactions: React.FC = () => {
   const transactions = useAppSelector(selectTransactions)
   const status = useAppSelector(selectStatus)
   const fetchError = useAppSelector(selectErrors).fetchError
-  if (status === "failed") return <ErrorMessage error={fetchError as Error} />
-  if (status === "loading") return <LoadingSpinner />
-  if (status === "idle" && transactions.length === 0) return <NoTransactions />
-  return (
-    <section>
-      <TransactionFilter />
+  let element
+  if (status === "failed")
+    element = <ErrorMessage error={fetchError as Error} />
+  else if (status === "loading") element = <LoadingSpinner />
+  else if (status === "idle" && transactions.length === 0)
+    element = <NoTransactions />
+  else
+    element = (
       <ul className="list-group mb-5">
         {transactions.map((transaction) => (
           <TransactionItem transaction={transaction} key={transaction.id} />
         ))}
       </ul>
+    )
+  return (
+    <section>
+      <TransactionFilter />
+      {element}
       <TransactionPagination />
     </section>
   )

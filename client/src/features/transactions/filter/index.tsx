@@ -149,7 +149,13 @@ const TransactionFilter: React.FC = () => {
               console.log(e.target.value)
               dispatch(search(e.target.value))
               clearTimeout(timer)
-              timer = setTimeout(() => dispatch(fetchTransactions(query)), 1500)
+              timer = setTimeout(
+                () =>
+                  dispatch(
+                    fetchTransactions({ ...query, search: e.target.value })
+                  ),
+                1500
+              )
             }}
           />
         </div>

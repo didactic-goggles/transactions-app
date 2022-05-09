@@ -1,15 +1,29 @@
 import { useAppDispatch, useAppSelector } from "app/hooks"
-import { fetchTransactions, limit, selectQuery } from "app/transactionsSlice"
+import {
+  fetchTransactions,
+  limit,
+  page,
+  selectQuery,
+  selectTotal,
+} from "app/transactionsSlice"
 import Pagination from "react-bootstrap/Pagination"
 
 const TransactionPagination: React.FC = () => {
   const dispatch = useAppDispatch()
   const query = useAppSelector(selectQuery)
+  const total = useAppSelector(selectTotal)
   const limitOptions = [5, 10, 20, 50]
   let items = []
-  for (let number = 1; number <= 5; number++) {
+  for (let number = 1; number <= Math.ceil(total / query.limit); number++) {
     items.push(
-      <Pagination.Item key={number} active={number === query.page}>
+      <Pagination.Item
+        key={number}
+        active={number === query.page}
+        onClick={() => {
+          dispatch(page(number))
+          dispatch(fetchTransactions({ ...query, page: number }))
+        }}
+      >
         {number}
       </Pagination.Item>
     )

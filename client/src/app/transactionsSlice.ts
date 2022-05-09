@@ -4,6 +4,7 @@ import { getTransactions, createTransaction, deleteTransaction } from "API"
 
 export interface TransactionsState {
   transactions: ITransaction[]
+  total: number
   status: "idle" | "loading" | "failed"
   errors: {
     fetchError: {}
@@ -18,6 +19,7 @@ export interface TransactionsState {
 
 const initialState: TransactionsState = {
   transactions: [],
+  total: 0,
   status: "idle",
   errors: {
     fetchError: {},
@@ -78,6 +80,9 @@ export const transactionsSlice = createSlice({
     limit: (state, action: PayloadAction<number>) => {
       state.query.limit = action.payload
     },
+    page: (state, action: PayloadAction<number>) => {
+      state.query.page = action.payload
+    },
     // increment: (state) => {
     //   // Redux Toolkit allows us to write "mutating" logic in reducers. It
     //   // doesn't actually mutate the state because it uses the Immer library,
@@ -103,6 +108,7 @@ export const transactionsSlice = createSlice({
       .addCase(fetchTransactions.fulfilled, (state, action) => {
         state.status = "idle"
         state.transactions = action.payload.transactions as ITransaction[]
+        state.total = Number(action.payload.total)
       })
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.status = "failed"
@@ -124,12 +130,14 @@ export const transactionsSlice = createSlice({
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const { search, filter, limit } = transactionsSlice.actions
+export const { search, filter, limit, page } = transactionsSlice.actions
 export const selectTransactions = (state: RootState) =>
   state.transactions.transactions
 export const selectStatus = (state: RootState) => state.transactions.status
 export const selectErrors = (state: RootState) => state.transactions.errors
 export const selectQuery = (state: RootState) => state.transactions.query
+export const selectTotal = (state: RootState) => state.transactions.total
+
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 // export const incrementIfOdd =

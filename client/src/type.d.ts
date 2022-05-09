@@ -20,6 +20,7 @@ type ApiDataType = {
   transactions?: ITransaction[]
   message?: string
   transaction?: ITransaction
+  total?: number
 }
 
 interface IFilter {
