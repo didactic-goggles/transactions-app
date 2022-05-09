@@ -10,6 +10,7 @@ export interface TransactionsState {
   }
   query: {
     limit: number
+    page: number
     search: string
     filter: IFilter
   }
@@ -23,6 +24,7 @@ const initialState: TransactionsState = {
   },
   query: {
     limit: 10,
+    page: 1,
     search: "",
     filter: {
       amount: null,
@@ -38,8 +40,8 @@ const initialState: TransactionsState = {
 // typically used to make async requests.
 export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
-  async () => {
-    const response = await getTransactions(initialState.query)
+  async (query: {} | undefined) => {
+    const response = await getTransactions(query)
     // The value we return becomes the `fulfilled` action payload
     return response.data
   }
@@ -72,6 +74,9 @@ export const transactionsSlice = createSlice({
     },
     filter: (state, action: PayloadAction<IFilter>) => {
       state.query.filter = action.payload
+    },
+    limit: (state, action: PayloadAction<number>) => {
+      state.query.limit = action.payload
     },
     // increment: (state) => {
     //   // Redux Toolkit allows us to write "mutating" logic in reducers. It
@@ -119,7 +124,7 @@ export const transactionsSlice = createSlice({
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const { search, filter } = transactionsSlice.actions
+export const { search, filter, limit } = transactionsSlice.actions
 export const selectTransactions = (state: RootState) =>
   state.transactions.transactions
 export const selectStatus = (state: RootState) => state.transactions.status

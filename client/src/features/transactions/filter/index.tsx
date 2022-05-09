@@ -5,7 +5,12 @@ import Dropdown from "react-bootstrap/Dropdown"
 import "./index.scss"
 import Export from "./Export"
 import { useAppDispatch, useAppSelector } from "app/hooks"
-import { filter, search, fetchTransactions, selectQuery } from "app/transactionsSlice"
+import {
+  filter,
+  search,
+  fetchTransactions,
+  selectQuery,
+} from "app/transactionsSlice"
 
 type DateRange = {
   startDate?: Date | undefined
@@ -25,11 +30,11 @@ type CustomToggleProps = {
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {}
 }
 
-let timer: NodeJS.Timeout;
+let timer: NodeJS.Timeout
 
 const TransactionFilter: React.FC = () => {
   const dispatch = useAppDispatch()
-  const query = useAppSelector(selectQuery);
+  const query = useAppSelector(selectQuery)
 
   const CustomToggle = React.forwardRef(
     (props: CustomToggleProps, ref: React.Ref<HTMLButtonElement>) => (
@@ -75,7 +80,7 @@ const TransactionFilter: React.FC = () => {
           },
         }
         dispatch(filter(filterObj))
-        dispatch(fetchTransactions())
+        dispatch(fetchTransactions({ ...query, filter: filterObj }))
         console.log(filterObj)
       }
       return (
@@ -143,8 +148,8 @@ const TransactionFilter: React.FC = () => {
             onChange={(e) => {
               console.log(e.target.value)
               dispatch(search(e.target.value))
-              clearTimeout(timer);
-              timer = setTimeout(() => dispatch(fetchTransactions()), 1500)
+              clearTimeout(timer)
+              timer = setTimeout(() => dispatch(fetchTransactions(query)), 1500)
             }}
           />
         </div>

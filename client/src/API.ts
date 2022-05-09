@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 const baseUrl: string = "http://localhost:3000"
 
-export const getTransactions = async (query: {}): Promise<
+export const getTransactions = async (query: {} | undefined): Promise<
   AxiosResponse<ApiDataType>
 > => {
   try {

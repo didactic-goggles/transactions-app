@@ -24,7 +24,7 @@ const Transactions: React.FC = () => {
   return (
     <section>
       <TransactionFilter />
-      <ul className="list-group">
+      <ul className="list-group mb-5">
         {transactions.map((transaction) => (
           <TransactionItem transaction={transaction} key={transaction.id} />
         ))}
