@@ -37,7 +37,37 @@ const getTransactions = async (req, res, next) => {
     //   () => res.status(200).json({ transactions: db.get("transactions") }),
     //   3000
     // )
-    res.status(200).json({ transactions: db.get("transactions") });
+    const transactions = db.get("transactions").value();
+    let results = transactions;
+    let total = transactions.length;
+    const query = req.query;
+    if (query && Object.keys(query).length > 0) {
+        results = transactions.filter((transaction) => {
+            if (query.search && query.search !== "") {
+                return transaction.description
+                    .toLowerCase()
+                    .includes(query.search.toLowerCase());
+            }
+            if (query.filter) {
+                const filterObj = JSON.parse(query.filter);
+                if (filterObj.amount) {
+                    const { min, max } = filterObj.amount;
+                    if (min && max && min < max)
+                        return transaction.amount <= max && transaction.amount >= min;
+                }
+                if (filterObj.amount) {
+                    const { endDate, startDate } = filterObj.date;
+                    return (new Date(transaction.date).valueOf() <= endDate &&
+                        new Date(transaction.date).valueOf() >= startDate);
+                }
+            }
+        });
+        total = results.length;
+        if (query.limit && query.page) {
+            results = results.slice((query.page - 1) * query.limit, query.limit * query.page);
+        }
+    }
+    res.status(200).json({ transactions: results, total });
 };
 exports.getTransactions = getTransactions;
 const updateTransaction = (req, res, next) => {
@@ -66,8 +96,16 @@ const updateTransaction = (req, res, next) => {
 };
 exports.updateTransaction = updateTransaction;
 const deleteTransaction = (req, res, next) => {
-    const transactionId = req.params.id;
-    db.get("transactions").remove({ id: transactionId }).write();
-    res.json({ message: "Transaction deleted" });
+    try {
+        const transactionId = req.params.id;
+        if (!db.get("transactions").find({ id: transactionId }).value()) {
+            throw new Error("Invalid transaction");
+        }
+        db.get("transactions").remove({ id: transactionId }).write();
+        res.json({ message: "Transaction deleted" });
+    }
+    catch (error) {
+        errorHandler(error, res);
+    }
 };
 exports.deleteTransaction = deleteTransaction;

@@ -7,6 +7,24 @@ type Data = {
   transactions: Transaction[]
 }
 
+type ReqQuery = {
+  search?: string
+  limit?: number
+  page?: number
+  filter?: string
+}
+
+type ReqQueryFilter = {
+  amount: {
+    min: number
+    max: number
+  }
+  date: {
+    startDate: number
+    endDate: number
+  }
+}
+
 const adapter = new FileSync<Data>("data/db.json")
 const db = lowdb(adapter)
 
@@ -42,7 +60,42 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
   //   () => res.status(200).json({ transactions: db.get("transactions") }),
   //   3000
   // )
-  res.status(200).json({ transactions: db.get("transactions") })
+  const transactions = db.get("transactions").value()
+  let results = transactions
+  let total = transactions.length
+  const query: ReqQuery = req.query
+  if (query && Object.keys(query).length > 0) {
+    results = transactions.filter((transaction) => {
+      if (query.search && query.search !== "") {
+        return transaction.description
+          .toLowerCase()
+          .includes(query.search.toLowerCase())
+      }
+      if (query.filter) {
+        const filterObj: ReqQueryFilter = JSON.parse(query.filter)
+        if (filterObj.amount) {
+          const { min, max } = filterObj.amount
+          if (min && max && min < max)
+            return transaction.amount <= max && transaction.amount >= min
+        }
+        if (filterObj.amount) {
+          const { endDate, startDate } = filterObj.date
+          return (
+            new Date(transaction.date).valueOf() <= endDate &&
+            new Date(transaction.date).valueOf() >= startDate
+          )
+        }
+      }
+    })
+    total = results.length
+    if (query.limit && query.page) {
+      results = results.slice(
+        (query.page - 1) * query.limit,
+        query.limit * query.page
+      )
+    }
+  }
+  res.status(200).json({ transactions: results, total })
 }
 
 export const updateTransaction: RequestHandler<{ id: string }> = (
@@ -78,9 +131,17 @@ export const updateTransaction: RequestHandler<{ id: string }> = (
 }
 
 export const deleteTransaction: RequestHandler = (req, res, next) => {
-  const transactionId = req.params.id
+  try {
+    const transactionId = req.params.id
 
-  db.get("transactions").remove({ id: transactionId }).write()
+    if (!db.get("transactions").find({ id: transactionId }).value()) {
+      throw new Error("Invalid transaction")
+    }
 
-  res.json({ message: "Transaction deleted" })
+    db.get("transactions").remove({ id: transactionId }).write()
+
+    res.json({ message: "Transaction deleted" })
+  } catch (error) {
+    errorHandler(error, res)
+  }
 }
