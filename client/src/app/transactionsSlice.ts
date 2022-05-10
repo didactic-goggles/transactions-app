@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { AppThunk, RootState } from "./store"
-import { getTransactions, createTransaction, deleteTransaction } from "API"
+import { RootState } from "./store"
+import {
+  getTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+} from "API"
 
 export interface TransactionsState {
   transactions: ITransaction[]
@@ -29,8 +34,10 @@ const initialState: TransactionsState = {
     page: 1,
     search: "",
     filter: {
-      amount: null,
-      date: null,
+      min: null,
+      max: null,
+      startDate: null,
+      endDate: null,
     },
   },
 }
@@ -57,6 +64,14 @@ export const addTransaction = createAsyncThunk(
   }
 )
 
+export const editTransaction = createAsyncThunk(
+  "transactions/editTransaction",
+  async (formData: ITransactionFormData) => {
+    const response = await updateTransaction(formData)
+    return response.data
+  }
+)
+
 export const removeTransaction = createAsyncThunk(
   "transactions/removeTransaction",
   async (transactionId: string) => {
@@ -72,7 +87,6 @@ export const transactionsSlice = createSlice({
   reducers: {
     search: (state, action: PayloadAction<string>) => {
       state.query.search = action.payload
-      console.log(action.payload, state.query.search)
     },
     filter: (state, action: PayloadAction<IFilter>) => {
       state.query.filter = action.payload
@@ -116,6 +130,15 @@ export const transactionsSlice = createSlice({
       })
       .addCase(addTransaction.fulfilled, (state, action) => {
         state.transactions.push(action.payload.transaction as ITransaction)
+      })
+      .addCase(editTransaction.fulfilled, (state, action) => {
+        const updatedTransaction = action.payload.transaction as ITransaction
+        const updatedTransactionIndex = state.transactions.findIndex(
+          (t) => t.id === updatedTransaction.id
+        )
+        if (updatedTransactionIndex > -1) {
+          state.transactions[updatedTransactionIndex] = updatedTransaction
+        }
       })
       .addCase(removeTransaction.fulfilled, (state, action) => {
         const transactionIndex = state.transactions.findIndex(

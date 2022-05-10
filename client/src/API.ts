@@ -21,12 +21,26 @@ export const createTransaction = async (
   formData: ITransactionFormData
 ): Promise<AxiosResponse<ApiDataType>> => {
   try {
-    const transactions: AxiosResponse<ApiDataType> = await axios.post(
+    const transaction: AxiosResponse<ApiDataType> = await axios.post(
       baseUrl + "/transactions",
       formData
     )
-    console.log(transactions)
-    return transactions
+    return transaction
+  } catch (error) {
+    if (error instanceof Error) throw new Error(error.message)
+    throw new Error(error as string)
+  }
+}
+
+export const updateTransaction = async (
+  formData: ITransactionFormData
+): Promise<AxiosResponse<ApiDataType>> => {
+  try {
+    const transaction: AxiosResponse<ApiDataType> = await axios.patch(
+      baseUrl + "/transactions/" + formData.id,
+      formData
+    )
+    return transaction
   } catch (error) {
     if (error instanceof Error) throw new Error(error.message)
     throw new Error(error as string)

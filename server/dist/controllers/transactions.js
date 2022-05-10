@@ -53,7 +53,6 @@ const getTransactions = async (req, res, next) => {
                 const filterObj = JSON.parse(query.filter);
                 if (filterObj.amount) {
                     const { min, max } = filterObj.amount;
-                    console.log(Boolean(min !== undefined && max !== undefined && min < max));
                     if (min !== undefined && max !== undefined && min < max)
                         filteredStatus =
                             transaction.amount <= max && transaction.amount >= min;

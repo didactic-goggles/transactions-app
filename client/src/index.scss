@@ -12,3 +12,17 @@
         color: var(--bs-danger)
     }
 }
+
+.btn-loading {
+    .loading {
+        display: none;
+    }
+    &-active {
+        .loading {
+            display: block;
+        }
+        .text {
+            display: none;
+        }
+    }
+}

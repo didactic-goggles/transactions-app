@@ -20,8 +20,10 @@ const TransactionPagination: React.FC = () => {
         key={number}
         active={number === query.page}
         onClick={() => {
-          dispatch(page(number))
-          dispatch(fetchTransactions({ ...query, page: number }))
+          if (number !== query.page) {
+            dispatch(page(number))
+            dispatch(fetchTransactions({ ...query, page: number }))
+          }
         }}
       >
         {number}

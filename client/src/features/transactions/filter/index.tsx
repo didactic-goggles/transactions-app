@@ -39,7 +39,7 @@ const TransactionFilter: React.FC = () => {
   const CustomToggle = React.forwardRef(
     (props: CustomToggleProps, ref: React.Ref<HTMLButtonElement>) => (
       <button
-        className="btn btn-primary"
+        className="btn btn-primary filter-dropdown-toggler"
         type="button"
         ref={ref}
         onClick={(e) => {
@@ -57,31 +57,60 @@ const TransactionFilter: React.FC = () => {
 
   const CustomMenu = React.forwardRef(
     (props: CustomMenuProps, ref: React.Ref<HTMLDivElement>) => {
-      const [min, setMin] = useState<number>(0)
-      const [max, setMax] = useState<number>(0)
+      const [min, setMin] = useState<number | undefined>(query.filter.min || undefined)
+      const [max, setMax] = useState<number | undefined>(query.filter.max || undefined)
       const [dateRange, setDateRange] = useState<DateRange>([
         {
-          startDate: new Date(),
-          endDate: addDays(new Date(), 7),
+          startDate: undefined,
+          endDate: undefined,
           key: "selection",
         },
       ])
 
+      const handleResetButtonClick = () => {
+        setMin(undefined)
+        setMax(undefined)
+        setDateRange([
+          {
+            startDate: undefined,
+            endDate: undefined,
+            key: "selection",
+          },
+        ])
+        const filterObj = {
+          min: null,
+          max: null,
+          startDate: null,
+          endDate: null,
+        }
+        dispatch(filter(filterObj))
+        dispatch(fetchTransactions())
+      }
+
       const handleFilterFormSubmit = (e: FormEvent) => {
         e.preventDefault()
+        // const filterObj: IFilter = {
+        //   amount: {
+        //     min,
+        //     max,
+        //   },
+        //   date: {
+        //     startDate: new Date(dateRange[0].startDate || 0).valueOf(),
+        //     endDate: new Date(dateRange[0].endDate || 0).valueOf(),
+        //   },
+        // }
         const filterObj: IFilter = {
-          amount: {
-            min,
-            max,
-          },
-          date: {
-            startDate: new Date(dateRange[0].startDate || 0).valueOf(),
-            endDate: new Date(dateRange[0].endDate || 0).valueOf(),
-          },
+          min: min ? Number(min) : null,
+          max: max ? Number(max) : null,
+          startDate: dateRange[0].startDate
+            ? new Date(dateRange[0].startDate).valueOf()
+            : null,
+          endDate: dateRange[0].endDate
+            ? new Date(dateRange[0].endDate).valueOf()
+            : null,
         }
         dispatch(filter(filterObj))
         dispatch(fetchTransactions({ ...query, filter: filterObj }))
-        console.log(filterObj)
       }
       return (
         <div
@@ -100,7 +129,7 @@ const TransactionFilter: React.FC = () => {
                   className="form-control"
                   type="number"
                   placeholder="Min"
-                  value={min}
+                  value={min || ""}
                   onChange={(e) => setMin(Number(e.target.value))}
                 />
               </div>
@@ -109,7 +138,7 @@ const TransactionFilter: React.FC = () => {
                   className="form-control"
                   type="number"
                   placeholder="Max"
-                  value={max}
+                  value={max || ""}
                   onChange={(e) => setMax(parseInt(e.target.value))}
                 />
               </div>
@@ -126,6 +155,13 @@ const TransactionFilter: React.FC = () => {
               direction="horizontal"
             />
             <div className="d-flex justify-content-end">
+              <button
+                type="button"
+                className="btn btn-danger px-5 me-2"
+                onClick={handleResetButtonClick}
+              >
+                Reset
+              </button>
               <button className="btn btn-primary px-5" type="submit">
                 Filter
               </button>
@@ -146,7 +182,6 @@ const TransactionFilter: React.FC = () => {
             placeholder="Search transaction"
             value={query.search}
             onChange={(e) => {
-              console.log(e.target.value)
               dispatch(search(e.target.value))
               clearTimeout(timer)
               timer = setTimeout(
@@ -160,7 +195,7 @@ const TransactionFilter: React.FC = () => {
           />
         </div>
         <div className="col-md-3">
-          <Dropdown>
+          <Dropdown autoClose="inside">
             <Dropdown.Toggle
               as={CustomToggle}
               id="dropdown-custom-components"
@@ -169,7 +204,7 @@ const TransactionFilter: React.FC = () => {
             <Dropdown.Menu as={CustomMenu}></Dropdown.Menu>
           </Dropdown>
         </div>
-        <div className="col-md-3 offset-3 text-end">
+        <div className="col-md-3 offset-md-3 text-end">
           <Export />
         </div>
       </div>

@@ -16,6 +16,10 @@ const routes: RouteObject[] = [
     path: "/add",
     element: <TransactionForm />,
   },
+  {
+    path: "/:id",
+    element: <TransactionForm />,
+  },
 ]
 
 export default routes

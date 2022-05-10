@@ -1,4 +1,5 @@
 interface ITransactionFormData {
+  id?: string
   description: string
   amount: number
   date: Date
@@ -24,12 +25,8 @@ type ApiDataType = {
 }
 
 interface IFilter {
-  amount: {
-    min: number
-    max: number
-  } | null
-  date: {
-    startDate: number
-    endDate: number
-  } | null
+  min: number | null
+  max: number | null
+  startDate: number | null
+  endDate: number | null
 }
