@@ -1,13 +1,14 @@
 import axios, { AxiosResponse } from "axios"
 const baseUrl: string = "http://localhost:3000"
 
-export const getTransactions = async (query: {} | undefined): Promise<
-  AxiosResponse<ApiDataType>
-> => {
+export const getTransactions = async (
+  query: {} | undefined
+): Promise<AxiosResponse<ApiDataType>> => {
   try {
     const transactions: AxiosResponse<ApiDataType> = await axios.get(
-      baseUrl + "/transactions", {
-        params: query
+      baseUrl + "/transactions",
+      {
+        params: query,
       }
     )
     return transactions
@@ -51,10 +52,25 @@ export const deleteTransaction = async (
   transactionId: string
 ): Promise<string> => {
   try {
-    await axios.delete(
-      baseUrl + "/transactions/" + transactionId
-    )
+    await axios.delete(baseUrl + "/transactions/" + transactionId)
     return transactionId
+  } catch (error) {
+    if (error instanceof Error) throw new Error(error.message)
+    throw new Error(error as string)
+  }
+}
+
+export const downloadFile = async (formData: {
+  type: string
+}): Promise<AxiosResponse<string>> => {
+  try {
+    const file: AxiosResponse<string> = await axios.post(
+      baseUrl + "/download",
+      formData, {
+        responseType: 'blob'
+      }
+    )
+    return file
   } catch (error) {
     if (error instanceof Error) throw new Error(error.message)
     throw new Error(error as string)
