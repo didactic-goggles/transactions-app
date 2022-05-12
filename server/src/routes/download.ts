@@ -1,8 +1,8 @@
 import { Router } from "express"
 import multer from 'multer'
-import { uploadFile } from "../controllers/upload"
+import { downloadFile } from "../controllers/download"
 
 const router = Router()
-router.post("/", multer().any(), uploadFile)
+router.post("/", multer().any(), downloadFile)
 
 export default router
