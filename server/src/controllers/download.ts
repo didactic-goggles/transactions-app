@@ -1,5 +1,4 @@
 import { RequestHandler } from "express"
-import fs from "fs"
 import { Parser } from "json2csv"
 import xlsx from "json-as-xlsx"
 import lowdb = require("lowdb")
@@ -11,6 +10,8 @@ type Data = {
 const adapter = new FileSync<Data>("data/db.json")
 const db = lowdb(adapter)
 
+const availableTypes = ["txt", "json", "csv", "xlsx"]
+
 const settings: any = {
   writeOptions: {
     type: "buffer",
@@ -20,28 +21,25 @@ const settings: any = {
 
 export const downloadFile: RequestHandler = async (req, res, next) => {
   const { type } = req.body
-
+  if (availableTypes.indexOf(type) === -1) {
+    res.status(500).json({
+      message: "Invalid file type",
+    })
+  }
+  const dbData = db.get("transactions").value()
+  let fileContent
   switch (type) {
     case "json":
-      fs.writeFile(
-        "dist/export.json",
-        JSON.stringify(db.get("transactions").value()),
-        () => res.sendFile("export.json", { root: "dist/" })
-      )
+      fileContent = JSON.stringify(dbData)
       break
     case "txt":
       const json2txtParser = new Parser()
-      const txt = json2txtParser.parse(db.get("transactions").value())
-      fs.writeFile("dist/export.txt", txt, () =>
-        res.sendFile("export.txt", { root: "dist/" })
-      )
+      fileContent = json2txtParser.parse(dbData)
+
       break
     case "csv":
       const json2csvParser = new Parser()
-      const csv = json2csvParser.parse(db.get("transactions").value())
-      fs.writeFile("dist/export.csv", csv, () =>
-        res.sendFile("export.csv", { root: "dist/" })
-      )
+      fileContent = json2csvParser.parse(dbData)
       break
     case "xlsx":
       const data: any[] = [
@@ -61,20 +59,15 @@ export const downloadFile: RequestHandler = async (req, res, next) => {
               value: "date",
             },
           ],
-          content: db.get("transactions").value(),
+          content: dbData,
         },
       ]
-      const buffer = xlsx(data, settings)
-      res.writeHead(200, {
-        "Content-Type": "application/octet-stream",
-        "Content-disposition": "attachment; filename=export.xlsx",
-      })
-      res.end(buffer)
-      break
-    default:
-      res.status(500).json({
-        message: "Invalid file type",
-      })
+      fileContent = xlsx(data, settings)
       break
   }
+  res.writeHead(200, {
+    "Content-Type": "application/octet-stream",
+    "Content-disposition": `attachment; filename=export.${type}`,
+  })
+  res.end(fileContent)
 }

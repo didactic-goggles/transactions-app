@@ -4,13 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadFile = void 0;
-const fs_1 = __importDefault(require("fs"));
 const json2csv_1 = require("json2csv");
 const json_as_xlsx_1 = __importDefault(require("json-as-xlsx"));
 const lowdb = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("data/db.json");
 const db = lowdb(adapter);
+const availableTypes = ["txt", "json", "csv", "xlsx"];
 const settings = {
     writeOptions: {
         type: "buffer",
@@ -19,19 +19,24 @@ const settings = {
 };
 const downloadFile = async (req, res, next) => {
     const { type } = req.body;
+    if (availableTypes.indexOf(type) === -1) {
+        res.status(500).json({
+            message: "Invalid file type",
+        });
+    }
+    const dbData = db.get("transactions").value();
+    let fileContent;
     switch (type) {
         case "json":
-            fs_1.default.writeFile("dist/export.json", JSON.stringify(db.get("transactions").value()), () => res.sendFile("export.json", { root: "dist/" }));
+            fileContent = JSON.stringify(dbData);
             break;
         case "txt":
             const json2txtParser = new json2csv_1.Parser();
-            const txt = json2txtParser.parse(db.get("transactions").value());
-            fs_1.default.writeFile("dist/export.txt", txt, () => res.sendFile("export.txt", { root: "dist/" }));
+            fileContent = json2txtParser.parse(dbData);
             break;
         case "csv":
             const json2csvParser = new json2csv_1.Parser();
-            const csv = json2csvParser.parse(db.get("transactions").value());
-            fs_1.default.writeFile("dist/export.csv", csv, () => res.sendFile("export.csv", { root: "dist/" }));
+            fileContent = json2csvParser.parse(dbData);
             break;
         case "xlsx":
             const data = [
@@ -51,21 +56,16 @@ const downloadFile = async (req, res, next) => {
                             value: "date",
                         },
                     ],
-                    content: db.get("transactions").value(),
+                    content: dbData,
                 },
             ];
-            const buffer = (0, json_as_xlsx_1.default)(data, settings);
-            res.writeHead(200, {
-                "Content-Type": "application/octet-stream",
-                "Content-disposition": "attachment; filename=export.xlsx",
-            });
-            res.end(buffer);
-            break;
-        default:
-            res.status(500).json({
-                message: "Invalid file type",
-            });
+            fileContent = (0, json_as_xlsx_1.default)(data, settings);
             break;
     }
+    res.writeHead(200, {
+        "Content-Type": "application/octet-stream",
+        "Content-disposition": `attachment; filename=export.${type}`,
+    });
+    res.end(fileContent);
 };
 exports.downloadFile = downloadFile;
