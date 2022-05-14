@@ -13,7 +13,10 @@ app.use((0, body_parser_1.json)());
 app.use((0, cors_1.default)());
 app.use("/transactions", transactions_1.default);
 app.use("/download", download_1.default);
+app.get('*', (req, res, next) => {
+    res.status(404).json({ status: false, message: 'Not found' });
+});
 app.use((err, req, res, next) => {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ status: false, message: err.message });
 });
 app.listen(3000, () => console.log(`Server running on http://localhost:3000`));

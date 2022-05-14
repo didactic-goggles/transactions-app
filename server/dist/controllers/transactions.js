@@ -11,7 +11,7 @@ db.defaults({
 }).write();
 const errorHandler = (error, res) => {
     if (error instanceof Error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ status: false, message: error.message });
     }
 };
 const createTransaction = async (req, res, next) => {
@@ -46,41 +46,31 @@ const getTransactions = async (req, res, next) => {
         results = transactions.filter((transaction) => {
             let filteredStatus = true;
             if (query.search && query.search !== "") {
-                console.log(1)
                 filteredStatus = transaction.description
                     .toLowerCase()
                     .includes(query.search.toLowerCase());
             }
-            console.log(query, filteredStatus)
             if (query.filter && filteredStatus) {
-                console.log(12)
                 const filterObj = JSON.parse(query.filter);
                 const { min, max } = filterObj;
-                console.log(min, max);
-                if (min && filteredStatus) {
-                    console.log(2)
-
+                if (min && !filteredStatus) {
                     filteredStatus = transaction.amount >= Number(min);
                 }
-                if (max && filteredStatus) {
-                    console.log(3)
-
+                if (max && !filteredStatus) {
                     filteredStatus = transaction.amount <= Number(max);
                 }
                 const { endDate, startDate } = filterObj;
-                if ((endDate || startDate) && filteredStatus) {
-                console.log(4)
-
+                if (filteredStatus && endDate && startDate) {
                     filteredStatus =
-                        new Date(transaction.date).valueOf() <= endDate &&
-                            new Date(transaction.date).valueOf() >= startDate;
+                        new Date(transaction.date).valueOf() <= Number(endDate) &&
+                            new Date(transaction.date).valueOf() >= Number(startDate);
                 }
             }
             return filteredStatus;
         });
         if (query.limit && query.page) {
-            found = results.length;
             results = results.slice((query.page - 1) * query.limit, query.limit * query.page);
+            found = results.length;
         }
     }
     res.status(200).json({ transactions: results, total, found });

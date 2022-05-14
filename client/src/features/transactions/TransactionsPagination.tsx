@@ -4,14 +4,14 @@ import {
   limit,
   page,
   selectQuery,
-  selectFound,
+  selectTotal,
 } from "app/transactionsSlice"
 import Pagination from "react-bootstrap/Pagination"
 
 const TransactionPagination: React.FC = () => {
   const dispatch = useAppDispatch()
   const query = useAppSelector(selectQuery)
-  const total = useAppSelector(selectFound)
+  const total = useAppSelector(selectTotal)
   const limitOptions = [5, 10, 20, 50]
   let items = []
   for (let number = 1; number <= Math.ceil(total / query.limit); number++) {

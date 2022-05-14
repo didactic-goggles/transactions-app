@@ -21,9 +21,13 @@ const Transactions: React.FC = () => {
   const total = useAppSelector(selectTotal)
   const fetchError = useAppSelector(selectErrors).fetchError
   let element
-  if (status === "failed") return <ErrorMessage error={fetchError as Error} />
+  if (status === "failed") return <ErrorMessage error={fetchError as string} />
   else if (status === "loading") element = <LoadingSpinner />
-  else if (status === "idle" && transactions.length === 0 && total === 0)
+  else if (
+    !transactions ||
+    !Array.isArray(transactions) ||
+    (status === "idle" && transactions.length === 0 && total === 0)
+  )
     element = <NoTransactions />
   else {
     let innerElement

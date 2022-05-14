@@ -62,6 +62,7 @@ export const downloadFile: RequestHandler = async (req, res, next) => {
           content: dbData,
         },
       ]
+      // @ts-ignore
       fileContent = xlsx(data, settings)
       break
   }

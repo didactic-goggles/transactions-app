@@ -30,7 +30,7 @@ db.defaults({
 
 const errorHandler = (error: unknown, res: Response) => {
   if (error instanceof Error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ status: false, message: error.message })
   }
 }
 
@@ -72,7 +72,6 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
       if (query.filter && filteredStatus) {
         const filterObj: ReqQueryFilter = JSON.parse(query.filter)
         const { min, max } = filterObj
-        console.log(min, max)
         if (min && !filteredStatus) {
           filteredStatus = transaction.amount >= Number(min)
         }
@@ -80,20 +79,20 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
           filteredStatus = transaction.amount <= Number(max)
         }
         const { endDate, startDate } = filterObj
-        if (!filteredStatus) {
+        if (filteredStatus && endDate && startDate) {
           filteredStatus =
-            new Date(transaction.date).valueOf() <= endDate &&
-            new Date(transaction.date).valueOf() >= startDate
+            new Date(transaction.date).valueOf() <= Number(endDate) &&
+            new Date(transaction.date).valueOf() >= Number(startDate)
         }
       }
       return filteredStatus
     })
     if (query.limit && query.page) {
-      found = results.length
       results = results.slice(
         (query.page - 1) * query.limit,
         query.limit * query.page
       )
+      found = results.length
     }
   }
   res.status(200).json({ transactions: results, total, found })

@@ -4,16 +4,21 @@ import { useAppDispatch, useAppSelector } from "app/hooks"
 import {
   addTransaction,
   editTransaction,
+  selectErrors,
   selectTransactions,
 } from "app/transactionsSlice"
 import Spinner from "react-bootstrap/Spinner"
 import { useNavigate, useParams } from "react-router-dom"
+import ErrorMessage from "features/ErrorMessage"
 
 const TransactionForm: React.FC = () => {
   const navigate = useNavigate()
   const urlParams = useParams()
   const { id } = urlParams
   const transactions = useAppSelector(selectTransactions)
+  const addError = useAppSelector(selectErrors).addError
+  const editError = useAppSelector(selectErrors).editError
+
   const [isEdit, setIsEdit] = useState<boolean>(false)
   const [waiting, setWaiting] = useState<boolean>(false)
   const [formData, setFormData] = useState<ITransactionFormData>({
@@ -41,9 +46,10 @@ const TransactionForm: React.FC = () => {
     try {
       e.preventDefault()
       setWaiting(true)
-      await dispatch(
+      const response = await dispatch(
         isEdit ? editTransaction(formData) : addTransaction(formData)
       )
+      if(!response.payload) throw new Error('error')
       alert(`Transaction ${isEdit ? "updated" : "created"}`)
       navigate("/")
     } catch (error) {
@@ -54,7 +60,7 @@ const TransactionForm: React.FC = () => {
   return (
     <div className="card">
       <div className="card-body">
-        <form action="" onSubmit={handleTransactionSubmit}>
+        <form className="mb-3" onSubmit={handleTransactionSubmit}>
           <div className="mb-3">
             <label htmlFor="description" className="form-label">
               Description
@@ -81,7 +87,7 @@ const TransactionForm: React.FC = () => {
               type="number"
               id="amount"
               className="form-control"
-              value={formData.amount || ''}
+              value={formData.amount || ""}
               onChange={(e: FormEvent<HTMLInputElement>) =>
                 setFormData({
                   ...formData,
@@ -117,7 +123,7 @@ const TransactionForm: React.FC = () => {
           </div>
           <button
             type="submit"
-            className={`btn btn-primary btn-loading ${
+            className={`btn btn-primary btn-loading px-5 ${
               waiting ? "btn-loading-active" : ""
             }`}
           >
@@ -127,6 +133,9 @@ const TransactionForm: React.FC = () => {
             <span className="text">{isEdit ? "Edit" : "Add"}</span>
           </button>
         </form>
+        {(editError || addError) && (
+          <ErrorMessage error={(isEdit ? editError : addError) as string} />
+        )}
       </div>
     </div>
   )

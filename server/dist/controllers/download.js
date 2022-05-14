@@ -59,6 +59,7 @@ const downloadFile = async (req, res, next) => {
                     content: dbData,
                 },
             ];
+            // @ts-ignore
             fileContent = (0, json_as_xlsx_1.default)(data, settings);
             break;
     }

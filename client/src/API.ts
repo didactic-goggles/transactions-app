@@ -13,7 +13,10 @@ export const getTransactions = async (
     )
     return transactions
   } catch (error) {
-    if (error instanceof Error) throw new Error(error.message)
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data as ApiDataType
+      throw new Error(errorMessage.message as string)
+    }
     throw new Error(error as string)
   }
 }
@@ -28,7 +31,10 @@ export const createTransaction = async (
     )
     return transaction
   } catch (error) {
-    if (error instanceof Error) throw new Error(error.message)
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data as ApiDataType
+      throw new Error(errorMessage.message as string)
+    }
     throw new Error(error as string)
   }
 }
@@ -43,7 +49,10 @@ export const updateTransaction = async (
     )
     return transaction
   } catch (error) {
-    if (error instanceof Error) throw new Error(error.message)
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data as ApiDataType
+      throw new Error(errorMessage.message as string)
+    }
     throw new Error(error as string)
   }
 }
@@ -66,8 +75,9 @@ export const downloadFile = async (formData: {
   try {
     const file: AxiosResponse<string> = await axios.post(
       baseUrl + "/download",
-      formData, {
-        responseType: 'blob'
+      formData,
+      {
+        responseType: "blob",
       }
     )
     return file
