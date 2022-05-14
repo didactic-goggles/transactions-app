@@ -15,14 +15,10 @@ type ReqQuery = {
 }
 
 type ReqQueryFilter = {
-  amount: {
-    min: number
-    max: number
-  }
-  date: {
-    startDate: number
-    endDate: number
-  }
+  min: number
+  max: number
+  startDate: number
+  endDate: number
 }
 
 const adapter = new FileSync<Data>("data/db.json")
@@ -62,7 +58,8 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
   // )
   const transactions = db.get("transactions").value()
   let results = transactions
-  let total = transactions.length
+  const total = transactions.length
+  let found = total
   const query: ReqQuery = req.query
   if (query && Object.keys(query).length > 0) {
     results = transactions.filter((transaction) => {
@@ -74,14 +71,16 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
       }
       if (query.filter && filteredStatus) {
         const filterObj: ReqQueryFilter = JSON.parse(query.filter)
-        if (filterObj.amount) {
-          const { min, max } = filterObj.amount
-          if (min !== undefined && max !== undefined && min < max)
-            filteredStatus =
-              transaction.amount <= max && transaction.amount >= min
+        const { min, max } = filterObj
+        console.log(min, max)
+        if (min && !filteredStatus) {
+          filteredStatus = transaction.amount >= Number(min)
         }
-        if (filterObj.date && filteredStatus) {
-          const { endDate, startDate } = filterObj.date
+        if (max && !filteredStatus) {
+          filteredStatus = transaction.amount <= Number(max)
+        }
+        const { endDate, startDate } = filterObj
+        if (!filteredStatus) {
           filteredStatus =
             new Date(transaction.date).valueOf() <= endDate &&
             new Date(transaction.date).valueOf() >= startDate
@@ -89,15 +88,15 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
       }
       return filteredStatus
     })
-    total = results.length
     if (query.limit && query.page) {
+      found = results.length
       results = results.slice(
         (query.page - 1) * query.limit,
         query.limit * query.page
       )
     }
   }
-  res.status(200).json({ transactions: results, total })
+  res.status(200).json({ transactions: results, total, found })
 }
 
 export const updateTransaction: RequestHandler<{ id: string }> = (

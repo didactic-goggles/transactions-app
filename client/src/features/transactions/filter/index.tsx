@@ -1,6 +1,5 @@
 import React, { FormEvent, useState } from "react"
 import { DateRangePicker } from "react-date-range"
-import { addDays } from "date-fns"
 import Dropdown from "react-bootstrap/Dropdown"
 import "./index.scss"
 import Export from "./Export"
@@ -139,12 +138,12 @@ const TransactionFilter: React.FC = () => {
                   type="number"
                   placeholder="Max"
                   value={max || ""}
-                  onChange={(e) => setMax(parseInt(e.target.value))}
+                  onChange={(e) => setMax(Number(e.target.value))}
                 />
               </div>
             </div>
             <hr />
-            <label htmlFor="" className="mb-2">
+            <label htmlFor="" className="mb-2 d-block">
               Date
             </label>
             <DateRangePicker
@@ -175,7 +174,7 @@ const TransactionFilter: React.FC = () => {
   return (
     <div>
       <div className="row mb-3">
-        <div className="col-md-3">
+        <div className="col-md-5 mb-3 mb-md-0">
           <input
             type="text"
             className="form-control"
@@ -204,7 +203,7 @@ const TransactionFilter: React.FC = () => {
             <Dropdown.Menu as={CustomMenu}></Dropdown.Menu>
           </Dropdown>
         </div>
-        <div className="col-md-3 offset-md-3 text-end">
+        <div className="col-md-3 ms-auto text-end">
           <Export />
         </div>
       </div>

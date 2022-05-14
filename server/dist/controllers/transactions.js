@@ -39,26 +39,38 @@ const getTransactions = async (req, res, next) => {
     // )
     const transactions = db.get("transactions").value();
     let results = transactions;
-    let total = transactions.length;
+    const total = transactions.length;
+    let found = total;
     const query = req.query;
     if (query && Object.keys(query).length > 0) {
         results = transactions.filter((transaction) => {
             let filteredStatus = true;
             if (query.search && query.search !== "") {
+                console.log(1)
                 filteredStatus = transaction.description
                     .toLowerCase()
                     .includes(query.search.toLowerCase());
             }
+            console.log(query, filteredStatus)
             if (query.filter && filteredStatus) {
+                console.log(12)
                 const filterObj = JSON.parse(query.filter);
-                if (filterObj.amount) {
-                    const { min, max } = filterObj.amount;
-                    if (min !== undefined && max !== undefined && min < max)
-                        filteredStatus =
-                            transaction.amount <= max && transaction.amount >= min;
+                const { min, max } = filterObj;
+                console.log(min, max);
+                if (min && filteredStatus) {
+                    console.log(2)
+
+                    filteredStatus = transaction.amount >= Number(min);
                 }
-                if (filterObj.date && filteredStatus) {
-                    const { endDate, startDate } = filterObj.date;
+                if (max && filteredStatus) {
+                    console.log(3)
+
+                    filteredStatus = transaction.amount <= Number(max);
+                }
+                const { endDate, startDate } = filterObj;
+                if ((endDate || startDate) && filteredStatus) {
+                console.log(4)
+
                     filteredStatus =
                         new Date(transaction.date).valueOf() <= endDate &&
                             new Date(transaction.date).valueOf() >= startDate;
@@ -66,12 +78,12 @@ const getTransactions = async (req, res, next) => {
             }
             return filteredStatus;
         });
-        total = results.length;
         if (query.limit && query.page) {
+            found = results.length;
             results = results.slice((query.page - 1) * query.limit, query.limit * query.page);
         }
     }
-    res.status(200).json({ transactions: results, total });
+    res.status(200).json({ transactions: results, total, found });
 };
 exports.getTransactions = getTransactions;
 const updateTransaction = (req, res, next) => {

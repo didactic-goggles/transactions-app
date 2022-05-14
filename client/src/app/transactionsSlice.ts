@@ -10,6 +10,7 @@ import {
 export interface TransactionsState {
   transactions: ITransaction[]
   total: number
+  found: number
   status: "idle" | "loading" | "failed"
   errors: {
     fetchError: {}
@@ -25,6 +26,7 @@ export interface TransactionsState {
 const initialState: TransactionsState = {
   transactions: [],
   total: 0,
+  found: 0,
   status: "idle",
   errors: {
     fetchError: {},
@@ -160,6 +162,7 @@ export const selectStatus = (state: RootState) => state.transactions.status
 export const selectErrors = (state: RootState) => state.transactions.errors
 export const selectQuery = (state: RootState) => state.transactions.query
 export const selectTotal = (state: RootState) => state.transactions.total
+export const selectFound = (state: RootState) => state.transactions.found
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.

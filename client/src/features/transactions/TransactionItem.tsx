@@ -26,7 +26,7 @@ const TransactionItem: React.FC<TransactionItemProps> = (props) => {
     >
       <div>
         <h4>{transaction.description}</h4>
-        <h6>{new Date(transaction.date).toDateString()}</h6>
+        <h6>{transaction.date}</h6>
       </div>
       <div className="ms-5">
         <h2>{transaction.amount}</h2>

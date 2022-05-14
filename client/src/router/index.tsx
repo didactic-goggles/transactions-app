@@ -14,7 +14,7 @@ const routes: RouteObject[] = [
   },
   {
     path: "/add",
-    element: <TransactionForm />,
+    element: <TransactionForm key={new Date().toString()}/>,
   },
   {
     path: "/:id",

@@ -19,7 +19,7 @@ const TransactionForm: React.FC = () => {
   const [formData, setFormData] = useState<ITransactionFormData>({
     description: "",
     amount: 0,
-    date: new Date(),
+    date: new Date().toISOString().split("T")[0],
   })
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const TransactionForm: React.FC = () => {
         id: transactionData.id,
         description: transactionData.description,
         amount: transactionData.amount,
-        date: new Date(transactionData.date),
+        date: new Date(transactionData.date).toISOString().split("T")[0],
       })
       setIsEdit(true)
     }
@@ -81,7 +81,7 @@ const TransactionForm: React.FC = () => {
               type="number"
               id="amount"
               className="form-control"
-              value={formData.amount}
+              value={formData.amount || ''}
               onChange={(e: FormEvent<HTMLInputElement>) =>
                 setFormData({
                   ...formData,
@@ -104,11 +104,13 @@ const TransactionForm: React.FC = () => {
               type="date"
               id="date"
               className="form-control"
-              value={formData.date.toLocaleDateString("en-CA")}
+              value={formData.date}
               onChange={(e: FormEvent<HTMLInputElement>) =>
                 setFormData({
                   ...formData,
-                  date: new Date(e.currentTarget.value),
+                  date: new Date(e.currentTarget.value)
+                    .toISOString()
+                    .split("T")[0],
                 })
               }
             />

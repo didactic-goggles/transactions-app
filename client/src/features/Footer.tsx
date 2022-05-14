@@ -2,7 +2,12 @@ const Footer: React.FC = () => {
   return (
     <footer className="mt-auto d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
       <div className="col-md-4 d-flex align-items-center">
-        <a href="/" className="me-2 text-muted text-decoration-none lh-1">
+        <a
+          href="https://getbootstrap.com/"
+          className="me-2 text-muted text-decoration-none lh-1"
+          target="_blank"
+          rel="noreferrer"
+        >
           <i className="bi-bootstrap"></i>
         </a>
         <span className="text-muted">Made by Dijwar Bozyel</span>

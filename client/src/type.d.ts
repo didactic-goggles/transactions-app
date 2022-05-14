@@ -1,15 +1,15 @@
 interface ITransactionFormData {
   id?: string
   description: string
-  amount: number
-  date: Date
+  amount: number | null
+  date: string
 }
 
 interface ITransaction {
   id: string
   description: string
   amount: number
-  date: Date
+  date: string
 }
 
 interface TransactionProps {

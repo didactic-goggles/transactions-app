@@ -2,14 +2,14 @@ export interface ITransaction {
   id: string
   description: string
   amount: number
-  date: Date
+  date: string
 }
 
 export class Transaction {
   id: string
   description: string
   amount: number
-  date: Date
+  date: string
   constructor(data: ITransaction) {
     if (typeof data.amount !== 'number') {
       throw new Error('Invalid amount')
