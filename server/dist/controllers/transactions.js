@@ -1,9 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTransaction = exports.updateTransaction = exports.getTransactions = exports.createTransaction = void 0;
 const lowdb = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const transaction_1 = require("../models/transaction");
+const fs_extra_1 = __importDefault(require("fs-extra"));
+const file = "data/db.json";
+fs_extra_1.default.ensureFileSync(file);
 const adapter = new FileSync("data/db.json");
 const db = lowdb(adapter);
 db.defaults({
@@ -42,6 +48,7 @@ const getTransactions = async (req, res, next) => {
     const total = transactions.length;
     let found = total;
     const query = req.query;
+    let totalAmount = 0;
     if (query && Object.keys(query).length > 0) {
         results = transactions.filter((transaction) => {
             let filteredStatus = true;
@@ -53,10 +60,10 @@ const getTransactions = async (req, res, next) => {
             if (query.filter && filteredStatus) {
                 const filterObj = JSON.parse(query.filter);
                 const { min, max } = filterObj;
-                if (min && !filteredStatus) {
+                if (min && filteredStatus) {
                     filteredStatus = transaction.amount >= Number(min);
                 }
-                if (max && !filteredStatus) {
+                if (max && filteredStatus) {
                     filteredStatus = transaction.amount <= Number(max);
                 }
                 const { endDate, startDate } = filterObj;
@@ -68,12 +75,11 @@ const getTransactions = async (req, res, next) => {
             }
             return filteredStatus;
         });
-        if (query.limit && query.page) {
-            results = results.slice((query.page - 1) * query.limit, query.limit * query.page);
-            found = results.length;
-        }
     }
-    res.status(200).json({ transactions: results, total, found });
+    results = results.slice((((query === null || query === void 0 ? void 0 : query.page) || 1) - 1) * ((query === null || query === void 0 ? void 0 : query.limit) || 10), ((query === null || query === void 0 ? void 0 : query.limit) || 10) * ((query === null || query === void 0 ? void 0 : query.page) || 1));
+    totalAmount = results.reduce((t, c) => t + c.amount, 0);
+    found = results.length;
+    res.status(200).json({ transactions: results, total, found, totalAmount });
 };
 exports.getTransactions = getTransactions;
 const updateTransaction = (req, res, next) => {

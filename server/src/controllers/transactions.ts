@@ -2,6 +2,9 @@ import { RequestHandler, Response } from "express"
 import lowdb = require("lowdb")
 import FileSync = require("lowdb/adapters/FileSync")
 import { ITransaction, Transaction } from "../models/transaction"
+import fs from "fs-extra"
+const file = "data/db.json"
+fs.ensureFileSync(file)
 
 type Data = {
   transactions: Transaction[]
@@ -61,6 +64,7 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
   const total = transactions.length
   let found = total
   const query: ReqQuery = req.query
+  let totalAmount:number = 0;
   if (query && Object.keys(query).length > 0) {
     results = transactions.filter((transaction) => {
       let filteredStatus = true
@@ -72,10 +76,10 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
       if (query.filter && filteredStatus) {
         const filterObj: ReqQueryFilter = JSON.parse(query.filter)
         const { min, max } = filterObj
-        if (min && !filteredStatus) {
+        if (min && filteredStatus) {
           filteredStatus = transaction.amount >= Number(min)
         }
-        if (max && !filteredStatus) {
+        if (max && filteredStatus) {
           filteredStatus = transaction.amount <= Number(max)
         }
         const { endDate, startDate } = filterObj
@@ -87,15 +91,14 @@ export const getTransactions: RequestHandler = async (req, res, next) => {
       }
       return filteredStatus
     })
-    if (query.limit && query.page) {
-      results = results.slice(
-        (query.page - 1) * query.limit,
-        query.limit * query.page
-      )
-      found = results.length
-    }
   }
-  res.status(200).json({ transactions: results, total, found })
+  results = results.slice(
+    ((query?.page || 1) - 1) * (query?.limit || 10),
+    (query?.limit || 10) * (query?.page || 1)
+    )
+  totalAmount = results.reduce((t, c) => t + c.amount, 0)
+  found = results.length
+  res.status(200).json({ transactions: results, total, found, totalAmount })
 }
 
 export const updateTransaction: RequestHandler<{ id: string }> = (
