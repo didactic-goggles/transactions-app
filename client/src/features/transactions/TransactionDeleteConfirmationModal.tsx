@@ -27,7 +27,7 @@ const TransactionDeleteConfirmationModal: React.FC = () => {
       </Modal.Body>
       <Modal.Footer className="flex-nowrap p-0">
         <button
-          className="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end"
+          className="btn btn-lg btn-link fs-6 text-decoration-none text-danger col-6 m-0 rounded-0 border-end"
           onClick={handleRemoveTransactionClick}
         >
           <strong>Yes, delete</strong>
