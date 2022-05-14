@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios"
-const baseUrl: string = "http://localhost:3000"
+const baseUrl: string = "http://localhost:3000/db"
 
 export const getTransactions = async (
   query: {} | undefined

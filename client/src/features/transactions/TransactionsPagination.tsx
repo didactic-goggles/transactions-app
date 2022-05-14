@@ -40,9 +40,15 @@ const TransactionPagination: React.FC = () => {
           className="form-select"
           id="limit"
           onChange={(e) => {
-            dispatch(limit(Number(e.target.value)))
+            const newLimit = Number(e.target.value)
+            const newFilter = { ...query, limit: newLimit }
+            if (newLimit > query.limit) {
+              dispatch(page(1))
+              newFilter.page = 1
+            }
+            dispatch(limit(newLimit))
             dispatch(
-              fetchTransactions({ ...query, limit: Number(e.target.value) })
+              fetchTransactions(newFilter)
             )
           }}
           value={query.limit}

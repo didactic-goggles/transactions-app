@@ -1,5 +1,5 @@
 import { useAppDispatch } from "app/hooks"
-import { removeTransaction } from "app/transactionsSlice"
+import { selectTransaction } from "app/transactionsSlice"
 import { useNavigate } from "react-router-dom"
 
 type TransactionItemProps = {
@@ -7,7 +7,7 @@ type TransactionItemProps = {
 }
 
 const TransactionItem: React.FC<TransactionItemProps> = (props) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const { transaction } = props
   const type = transaction.amount < 0 ? "danger" : "success"
 
@@ -18,7 +18,7 @@ const TransactionItem: React.FC<TransactionItemProps> = (props) => {
   }
 
   const handleRemoveTransactionClick = () => {
-    dispatch(removeTransaction(transaction.id))
+    dispatch(selectTransaction(transaction))
   }
   return (
     <li
@@ -32,10 +32,16 @@ const TransactionItem: React.FC<TransactionItemProps> = (props) => {
         <h2>{transaction.amount}</h2>
       </div>
       <div className="ms-auto">
-        <button className="btn btn-outline-primary me-2" onClick={handleUpdateTransactionClick}>
+        <button
+          className="btn btn-outline-primary me-2"
+          onClick={handleUpdateTransactionClick}
+        >
           <i className="bi-pencil-square"></i>
         </button>
-        <button className="btn btn-outline-danger" onClick={handleRemoveTransactionClick}>
+        <button
+          className="btn btn-outline-danger"
+          onClick={handleRemoveTransactionClick}
+        >
           <i className="bi-trash3"></i>
         </button>
       </div>

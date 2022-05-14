@@ -9,6 +9,8 @@ import {
 
 export interface TransactionsState {
   transactions: ITransaction[]
+  selectedTransaction: ITransaction | undefined
+  totalAmount: number
   total: number
   found: number
   status: "idle" | "loading" | "failed"
@@ -27,6 +29,8 @@ export interface TransactionsState {
 
 const initialState: TransactionsState = {
   transactions: [],
+  selectedTransaction: undefined,
+  totalAmount: 0,
   total: 0,
   found: 0,
   status: "idle",
@@ -102,6 +106,13 @@ export const transactionsSlice = createSlice({
     },
     page: (state, action: PayloadAction<number>) => {
       state.query.page = action.payload
+    },
+    selectTransaction: (state, action: PayloadAction<ITransaction | null>) => {
+      if (!action.payload) {
+        state.selectedTransaction = undefined;
+      } else {
+        state.selectedTransaction = action.payload
+      }
     }
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -114,7 +125,8 @@ export const transactionsSlice = createSlice({
       .addCase(fetchTransactions.fulfilled, (state, action) => {
         state.status = "idle"
         state.transactions = action.payload.transactions as ITransaction[]
-        state.total = Number(action.payload.total)
+        state.total = action.payload.total as number
+        state.totalAmount = action.payload.totalAmount as number
       })
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.status = "failed"
@@ -151,7 +163,7 @@ export const transactionsSlice = createSlice({
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const { search, filter, limit, page } = transactionsSlice.actions
+export const { search, filter, limit, page, selectTransaction } = transactionsSlice.actions
 export const selectTransactions = (state: RootState) =>
   state.transactions.transactions
 export const selectStatus = (state: RootState) => state.transactions.status
@@ -159,6 +171,8 @@ export const selectErrors = (state: RootState) => state.transactions.errors
 export const selectQuery = (state: RootState) => state.transactions.query
 export const selectTotal = (state: RootState) => state.transactions.total
 export const selectFound = (state: RootState) => state.transactions.found
+export const selectTotalAmount = (state: RootState) => state.transactions.totalAmount
+export const selectedTransaction = (state: RootState) => state.transactions.selectedTransaction
 
 
 export default transactionsSlice.reducer

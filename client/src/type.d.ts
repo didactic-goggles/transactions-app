@@ -22,6 +22,7 @@ type ApiDataType = {
   message?: string
   transaction?: ITransaction
   total?: number
+  totalAmount?: number
   error?: Error
 }
 
